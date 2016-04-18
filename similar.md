@@ -6,4 +6,7 @@
   - http://yorb.it/
 
 - 一時的な天体現象をTwitter-likeなstreamに表示 
- https://2014.spaceappschallenge.org/project/skywatch/
+  - https://2014.spaceappschallenge.org/project/skywatch/
+
+- 自然現象をクラウドソーシングでタグ付けして危険な自然災害を検出できる
+  - https://2015.spaceappschallenge.org/project/natev-explorer-natural-events-explorer-project/
