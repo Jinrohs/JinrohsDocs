@@ -10,3 +10,6 @@
 
 - 自然現象をクラウドソーシングでタグ付けして危険な自然災害を検出できる
   - https://2015.spaceappschallenge.org/project/natev-explorer-natural-events-explorer-project/
+
+- 宇宙を飛び回る物体の可視化が美しい
+  - http://stuffin.space/
