@@ -52,3 +52,20 @@ $ curl --limit-rate 100K --cookie cookies.txt "https://www.space-track.org/basic
 }
 ]
 ```
+
+### python
+
+```
+>>> import requests
+>>> s = requests.Session()
+>>> login_data = {'identity':'myusername','password':'mypassword'}
+>>> s.post('https://www.space-track.org/ajaxauth/login', data=login_data)
+>>> r = s.get('https://www.space-track.org/basicspacedata/query/class/tle_latest/ORDINAL/1/NORAD_CAT_ID/123/orderby/TLE_LINE1 ASC/format/tle')
+>>> r
+<Response [200]>
+>>> r.text
+u'1   123U 61015H   16108.58114197 +.00000196 +00000-0 +91186-4 0  9996\r\n2   123 066.6852 193.1353 0108466 100.7756 260.5578 14.36592532845793\r\n'
+>>> r = s.get('https://www.space-track.org/basicspacedata/query/class/tle_latest/ORDINAL/1/NORAD_CAT_ID/123/orderby/TLE_LINE1 ASC/format/json')
+>>> r.text
+u'[{"ORDINAL":"1","COMMENT":"GENERATED VIA SPACETRACK.ORG API",...}]
+```
