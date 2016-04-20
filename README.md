@@ -14,6 +14,7 @@ sunmoonStern and her friends
       - 自然災害系のeventが得られる
     - [Global Imagery Browse Services (GIBS)](https://earthdata.nasa.gov/about/science-system-description/eosdis-components/global-imagery-browse-services-gibs)
       - いろいろな物理量がとってこれる. APIが用意されている. zoomができる.
+      - 地球を表現んするのに使用できるマップ形式 https://wiki.earthdata.nasa.gov/display/GIBS/Map+Library+Usage
   - JAXAの提供データ
     - [世界の雨分布速報(4h遅れ版とリアルタイム版がある)](http://sharaku.eorc.jaxa.jp/GSMaP_NOW/index_j.htm)
       - ユーザー登録してサーバーから情報がとってこれるようになった
