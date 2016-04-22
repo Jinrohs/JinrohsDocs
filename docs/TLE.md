@@ -1,6 +1,6 @@
-## Two Line Element (TLE)
+# Two Line Element (TLE)
 
-### TLE とは
+## 1. TLE とは
 
 人工衛星やデブリなどの現在位置や軌道を計算するのに必要な**軌道要素**というパラメータのの表示形式。2行のデータからなるためこう呼ばれる。
 
@@ -9,9 +9,9 @@
 2 25544  51.6458 337.7423 0001851  63.8623  83.2265 15.54303647996258
 ```
 
-### 取得方法
+## 2. 取得方法
 
-#### コマンドラインから
+### 2.1 コマンドラインから
 
 セッションの cookie を取得
 
@@ -66,7 +66,7 @@ $ curl --limit-rate 100K --cookie cookies.txt "https://www.space-track.org/basic
 ]
 ```
 
-#### python
+### 2.2 python
 
 ```
 >>> import requests
@@ -83,7 +83,7 @@ u'1   123U 61015H   16108.58114197 +.00000196 +00000-0 +91186-4 0  9996\r\n2   1
 u'[{"ORDINAL":"1","COMMENT":"GENERATED VIA SPACETRACK.ORG API",...}]
 ```
 
-### 参考 HP
+## 3. 参考 HP
 
 - Space-Track  
 https://www.space-track.org/
@@ -101,15 +101,15 @@ http://www.infra.kochi-tech.ac.jp/takagi/Geomatics/5Estimation2.pdf
 http://satellitedebris.net/Database/
 
 
-### メモ
+## 4. メモ
 
-#### Space-Track の TLE の更新頻度
+### 4.1 Space-Track の TLE の更新頻度
 
 - TLE (Two Line Element) を取ってくるとき、2016/04/21 の 16:37 と 18:59 でデータが一致。  
 → 少なくとも２時間程度は更新されないっぽい。
 - また、いくつかの衛星・デブリの過去データを漁ってみると、定期的にではなく、だいたい2〜4時間おきに TLE が更新されている衛星・デブリが多かった。
 
-#### ニュートン法の初期値
+### 4.2 ニュートン法の初期値
 
 計算過程で離心近点角というパラメータを求める際、ニュートン法を用いる。  
 離心近点角が f(x) = 0 の解であるとすると、その他のパラメータ（衛星ごとに異なる既知の値）をいろいろ変えた場合の y = f(x) のグラフは以下のようになった。  
