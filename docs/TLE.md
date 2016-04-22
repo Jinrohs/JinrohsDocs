@@ -9,6 +9,7 @@
 2 25544  51.6458 337.7423 0001851  63.8623  83.2265 15.54303647996258
 ```
 
+
 ## 2. 取得方法
 
 ### 2.1 コマンドラインから
@@ -83,6 +84,7 @@ u'1   123U 61015H   16108.58114197 +.00000196 +00000-0 +91186-4 0  9996\r\n2   1
 u'[{"ORDINAL":"1","COMMENT":"GENERATED VIA SPACETRACK.ORG API",...}]
 ```
 
+
 ## 3. 参考 HP
 
 - Space-Track  
@@ -101,6 +103,8 @@ http://www.infra.kochi-tech.ac.jp/takagi/Geomatics/5Estimation2.pdf
 http://satellitedebris.net/Database/
 - グリニッジ恒星時（リアルタイムで表示）  
 http://eco.mtk.nao.ac.jp/cgi-bin/koyomi/cande/gst.cgi
+- ISS のリアルタイム位置を表示。デバッグに使える。  
+http://www.ncsm.city.nagoya.jp/astro/iss_live.html
 
 
 ## 4. メモ
