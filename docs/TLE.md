@@ -1,5 +1,9 @@
 ## Two Line Element
 
+### 取得方法
+
+#### コマンドラインから
+
 セッションの cookie を取得
 
 ```
@@ -53,7 +57,7 @@ $ curl --limit-rate 100K --cookie cookies.txt "https://www.space-track.org/basic
 ]
 ```
 
-### python
+#### python
 
 ```
 >>> import requests
@@ -69,3 +73,37 @@ u'1   123U 61015H   16108.58114197 +.00000196 +00000-0 +91186-4 0  9996\r\n2   1
 >>> r.text
 u'[{"ORDINAL":"1","COMMENT":"GENERATED VIA SPACETRACK.ORG API",...}]
 ```
+
+### 参考 HP
+
+- Space-Track  
+https://www.space-track.org/
+- Space-Track 使い方公式ドキュメント  
+https://www.space-track.org/documentation#/howto
+- 軌道要素の解説  
+http://www.lizard-tail.com/isana/tle/misc/what_is_tle
+- 軌道要素の解説2  
+http://www.jamsat.or.jp/keps/kepmodel.html
+- 人工衛星軌道計算（ブログ）  
+http://ameblo.jp/akakituki/entry-10812672360.html
+- 軌道計算  
+http://www.infra.kochi-tech.ac.jp/takagi/Geomatics/5Estimation2.pdf
+- NORAD 衛星カタログ  
+http://satellitedebris.net/Database/
+
+
+### メモ
+
+#### Space-Track の TLE の更新頻度
+
+- TLE (Two Line Element) を取ってくるとき、2016/04/21 の 16:37 と 18:59 でデータが一致。  
+→ 少なくとも２時間程度は更新されないっぽい。
+- また、いくつかの衛星・デブリの過去データを漁ってみると、定期的にではなく、だいたい2〜4時間おきに TLE が更新されている衛星・デブリが多かった。
+
+#### ニュートン法の初期値
+
+計算過程で離心近点角というパラメータを求める際、ニュートン法を用いる。  
+離心近点角が f(x) = 0 の解であるとすると、その他のパラメータ（衛星ごとに異なる既知の値）をいろいろ変えた場合の y = f(x) のグラフは以下のようになった。  
+このグラフより、ニュートン法の初期値には pi を設定しておけば早く収束しそう。
+
+![](tle_newton.jpeg)
