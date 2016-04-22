@@ -99,6 +99,8 @@ http://ameblo.jp/akakituki/entry-10812672360.html
 http://www.infra.kochi-tech.ac.jp/takagi/Geomatics/5Estimation2.pdf
 - NORAD 衛星カタログ  
 http://satellitedebris.net/Database/
+- グリニッジ恒星時（リアルタイムで表示）  
+http://eco.mtk.nao.ac.jp/cgi-bin/koyomi/cande/gst.cgi
 
 
 ## 4. メモ
@@ -116,3 +118,17 @@ http://satellitedebris.net/Database/
 このグラフより、ニュートン法の初期値には pi (= 3.14159265...) を設定しておけば速く（無事に）収束しそう。
 
 ![](tle_newton.jpeg)
+
+### 4.3 時差
+
+TLE に含まれる時間は**世界標準時**。日本との時差に注意する。
+
+非常にうっとうしいことに、time.maketime() や time.time() などの関数は日付フォーマットの文字列を**日本時間**だと判断し、ご丁寧にも**9時間引き算して世界標準時に直してから** unix time に変換する。今回ばかりは辛い機能。
+
+```
+>>> import time
+>>> time.mktime(time.strptime("1970-01-01 00:00:00", "%Y-%m-%d %H:%M:%S"))
+-32400.0
+```
+
+
