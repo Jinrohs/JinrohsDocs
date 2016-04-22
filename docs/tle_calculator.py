@@ -22,7 +22,7 @@ class TLECalculator:
     def update_params(self, tle):
         # get parameters from response JSON
         #object_type = tle["OBJECT_TYPE"]
-        self.tle["epoch"] = int(time.mktime(time.strptime(tle["EPOCH"], "%Y-%m-%d %H:%M:%S")))  # 元期(Unix Time)
+        self.tle["epoch"] = int(time.mktime(time.strptime(tle["EPOCH"], "%Y-%m-%d %H:%M:%S"))) + 32400 # 元期(Unix Time)
         self.tle["eccentricity"] = float(tle["ECCENTRICITY"])  # 楕円軌道の離心率
         self.tle["mean_motion"] = float(tle["MEAN_MOTION"])  # 平均運動(周/day)
         self.tle["mean_motion_dot"] = float(tle["MEAN_MOTION_DOT"])  # 平均運動変化係数
@@ -44,7 +44,7 @@ class TLECalculator:
 
         # 元期からの経過日数
         dt = (unix_time - self.tle["epoch"]) / 86400.0
-        print "元期からの経過日数（合ってる）", dt
+        print "元期からの経過日数", dt
 
         # ほんの少し変わるかも？
         mean_motion = mean_motion + dt*mean_motion_dot
@@ -54,18 +54,29 @@ class TLECalculator:
         print "軌道長半径[km]", a
         # 観測時の平均近点角[地球の回転数(rev), ラジアン(rad)]
         M_rev = mean_anomaly/360 + mean_motion * dt + mean_motion_dot*0.5*dt*dt
-        print M_rev, M_rev-int(M_rev)
+        print "M_rev", M_rev, M_rev-int(M_rev)
         M_rad = self.degree_to_rad((M_rev - int(M_rev)) * 360)
         # 離心近点角 [rad]
         E = self.calculate_eccentric_anomaly(M_rad, e)
+        print "E", E
 
-        # 真の
+        """
+        # 真の近点角？
+        Vk = acos((cos(E)-e)/(1-e*cos(E)))
+        if sin(E) < 0:
+            Vk = 2*pi-Vk
+        Rk = a * (1-e*cos(E))
+
+        U = Rk * cos(Vk)
+        V = Rk * sin(Vk)
+        """
         
-
         U = a * cos(E) - a * e
         V = a * sqrt(1 - e * e) * sin(E)
 
-        i = self.tle["inclination"]
+        print "U, V", U, V
+
+        i = self.degree_to_rad(self.tle["inclination"])
         ap_0 = self.tle["arg_of_perigee"]
         raan_0 = self.tle["ra_of_asc_node"]
 
@@ -76,33 +87,42 @@ class TLECalculator:
         # 昇交点赤経 [rad]
         raan = self.degree_to_rad(raan_0 - 180*0.174*cos(i)/c * dt)
 
+        print "w_0, Omega_0", ap_0, raan_0
+        print "w, Omega", ap_0 + 180*0.174*(2-2.5*sin(i)*sin(i))/c * dt, raan_0 - 180*0.174*cos(i)/c * dt
+        print "dw, dOmega", 180*0.174*(2-2.5*sin(i)*sin(i))/c * dt, - 180*0.174*cos(i)/c * dt
+
         # 2010/01/01 00:00:00 のグリニッジ恒星時 [rad] <- 理科年表より
         #   cf. グリニッジ恒星時 = 春分点の方向とグリニッジ（greenwich）子午線との角度差
         theta_gw_0 = 0.27928240740740745 * 2 * pi
         # 基準時 2010/01/01 00:00:00 の unix time [s]
-        t0_gw = int(time.mktime(time.strptime("2010-01-01 00:00:00", "%Y-%m-%d %H:%M:%S")))
+        t0_gw = int(time.mktime(time.strptime("2010-01-01 00:00:00", "%Y-%m-%d %H:%M:%S"))) + 32400
         # 指定時刻のグリニッジ恒星時 [地球の回転数 (rev)]
         theta_gw = 0.27928240740740745 + 1.002737909 * (unix_time - t0_gw) / 86400.0
         # 指定時刻のグリニッジ恒星時 [rad]
         theta_gw = (theta_gw - int(theta_gw)) * 2 * pi
 
-        # 合ってそう
         # http://eco.mtk.nao.ac.jp/cgi-bin/koyomi/cande/gst.cgi
-        print "グリニッジ恒星時(hour)", theta_gw/pi*12
+        #print "グリニッジ恒星時(hour)", theta_gw/pi*12
 
         s_i, c_i = sin(i), cos(i)
         s_ap, c_ap = sin(ap), cos(ap)
+        s_raan, c_raan = sin(raan), cos(raan)
+        s_gw, c_gw = sin(theta_gw), cos(theta_gw)
+
+        x = (c_raan*c_ap-s_raan*c_i*s_ap) * U + (-c_raan*s_ap-s_raan*c_i*c_ap) * V
+        y = (s_raan*c_ap-c_raan*c_i*s_ap) * U + (-s_raan*s_ap-c_raan*c_i*c_ap) * V
+        z = s_i*s_ap*U + s_i*c_ap*V
+
         # raan だけだと x 軸が春分点を向いた座標系になってしまう（地球が動く）
         # 地球静止系に直すため、春分点と グリニッジ子午線がなす角度も補正する
-        s_raan_gw, c_raan_gw = sin(raan - theta_gw), cos(raan - theta_gw)
+        X = x*c_gw + y*s_gw
+        Y = -x*s_gw + y*c_gw
+        Z = z
 
-        x = (c_raan_gw*c_ap-s_raan_gw*c_i*s_ap) * U + (-c_raan_gw*s_ap-s_raan_gw*c_i*c_ap) * V
-        y = (s_raan_gw*c_ap-c_raan_gw*c_i*s_ap) * U + (-s_raan_gw*s_ap-c_raan_gw*c_i*c_ap) * V
-        z = s_i*s_ap*U + c_i*c_ap*V
+        print "x, y, z", x, y, z
+        print "X, Y, Z", X, Y, Z
 
-        print x, y, z
-
-        r, theta, phi = self.cartesian_to_polar(x, y, z)
+        r, theta, phi = self.cartesian_to_polar(X, Y, Z)
 
         print "r, 緯度, 経度", r, 90-theta*180/pi, phi*180/pi-180
 
