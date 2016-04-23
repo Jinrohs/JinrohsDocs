@@ -2,7 +2,7 @@
 
 from math import sin, cos, acos, sqrt, pi
 import time
-
+import numpy
 
 class TLECalculator:
     """  """
@@ -46,19 +46,23 @@ class TLECalculator:
         dt = (unix_time - self.tle["epoch"]) / 86400.0
         print "元期からの経過日数", dt
 
+        #print mean_motion, mean_motion_dot, mean_anomaly
+
         # ほんの少し変わるかも？
         mean_motion = mean_motion + dt*mean_motion_dot
+
+        print mean_motion
         
         # 楕円軌道の長半径
         a = (self.GM/(4*pi*pi*mean_motion*mean_motion)) ** (1/3.0)
         print "軌道長半径[km]", a
         # 観測時の平均近点角[地球の回転数(rev), ラジアン(rad)]
         M_rev = mean_anomaly/360 + mean_motion * dt + mean_motion_dot*0.5*dt*dt
-        print "M_rev", M_rev, M_rev-int(M_rev)
+        print "M_rev", M_rev, M_rev-int(M_rev), 360*(M_rev-int(M_rev))
         M_rad = self.degree_to_rad((M_rev - int(M_rev)) * 360)
         # 離心近点角 [rad]
         E = self.calculate_eccentric_anomaly(M_rad, e)
-        print "E", E
+        print "E", E, E*180/pi
 
         """
         # 真の近点角？
@@ -86,9 +90,10 @@ class TLECalculator:
         ap = self.degree_to_rad(ap_0 + 180*0.174*(2-2.5*sin(i)*sin(i))/c * dt)
         # 昇交点赤経 [rad]
         raan = self.degree_to_rad(raan_0 - 180*0.174*cos(i)/c * dt)
-
+        
+        print "i", i, i*180/pi
         print "w_0, Omega_0", ap_0, raan_0
-        print "w, Omega", ap_0 + 180*0.174*(2-2.5*sin(i)*sin(i))/c * dt, raan_0 - 180*0.174*cos(i)/c * dt
+        print "w, Omega", ap*180/pi, raan*180/pi
         print "dw, dOmega", 180*0.174*(2-2.5*sin(i)*sin(i))/c * dt, - 180*0.174*cos(i)/c * dt
 
         # 2010/01/01 00:00:00 のグリニッジ恒星時 [rad] <- 理科年表より
@@ -96,8 +101,10 @@ class TLECalculator:
         theta_gw_0 = 0.27928240740740745 * 2 * pi
         # 基準時 2010/01/01 00:00:00 の unix time [s]
         t0_gw = int(time.mktime(time.strptime("2010-01-01 00:00:00", "%Y-%m-%d %H:%M:%S"))) + 32400
+        t0_gw = int(time.mktime(time.strptime("2006-01-01 00:00:00", "%Y-%m-%d %H:%M:%S"))) + 32400
         # 指定時刻のグリニッジ恒星時 [地球の回転数 (rev)]
         theta_gw = 0.27928240740740745 + 1.002737909 * (unix_time - t0_gw) / 86400.0
+        theta_gw = 0.276444444 + 1.002737909 * (unix_time - t0_gw) / 86400.0
         # 指定時刻のグリニッジ恒星時 [rad]
         theta_gw = (theta_gw - int(theta_gw)) * 2 * pi
 
@@ -113,18 +120,45 @@ class TLECalculator:
         y = (s_raan*c_ap-c_raan*c_i*s_ap) * U + (-s_raan*s_ap-c_raan*c_i*c_ap) * V
         z = s_i*s_ap*U + s_i*c_ap*V
 
+        rotate_i = numpy.array([[1, 0, 0],
+                                [0, c_i, -s_i],
+                                [0, s_i, c_i]])
+        rotate_ap = numpy.array([[c_ap, -s_ap, 0],
+                                 [s_ap, c_ap, 0],
+                                 [0, 0, 1]])
+        rotate_raan = numpy.array([[c_raan, -s_raan, 0],
+                                   [s_raan, c_raan, 0],
+                                   [0, 0, 1]])
+        uv0 = numpy.array([[U], [V], [0]])
+        xyz = rotate_raan.dot(rotate_i).dot(rotate_ap).dot(uv0)
+        print xyz
+        rotate_gw = numpy.array([[c_gw, s_gw, 0],
+                                 [-s_gw, c_gw, 0],
+                                 [0, 0, 1]])
+        XYZ = rotate_gw.dot(xyz)
+
         # raan だけだと x 軸が春分点を向いた座標系になってしまう（地球が動く）
         # 地球静止系に直すため、春分点と グリニッジ子午線がなす角度も補正する
         X = x*c_gw + y*s_gw
         Y = -x*s_gw + y*c_gw
         Z = z
 
+        X = XYZ[0][0]
+        Y = XYZ[1][0]
+        Z = XYZ[2][0]
+
         print "x, y, z", x, y, z
         print "X, Y, Z", X, Y, Z
 
         r, theta, phi = self.cartesian_to_polar(X, Y, Z)
 
-        print "r, 緯度, 経度", r, 90-theta*180/pi, phi*180/pi-180
+        lat = 90-theta*180/pi
+        lng = phi*180/pi
+
+        print phi
+        
+        #print "r, 緯度, 経度", r, 90-theta*180/pi, phi*180/pi-180
+        print "r, 緯度, 経度", r, lat, lng
 
 
     def degree_to_rad(self, degree):
@@ -138,7 +172,7 @@ class TLECalculator:
         # ある場合は補正が必要
         phi_tmp = acos(x / sqrt(x*x + y*y))
         if y < 0:
-            phi = 2*pi - phi_tmp
+            phi = - phi_tmp
         else:
             phi = phi_tmp
         return (r, theta, phi)
