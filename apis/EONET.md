@@ -11,7 +11,8 @@
   - 地球の画像について
     - http://map1.vis.earthdata.nasa.gov/wmts-geo/MODIS_Terra_CorrectedReflectance_TrueColor/default/2012-07-09/EPSG4326_250m/6/1/1.jpg
      などを叩く 
-    - '2012-07-09'の部分を実際の日付にする http://hogehoge...{ZoomLevel}/{TileRow}/{TileCol}.pngという形式になっている 
+    - '2012-07-09'の部分を実際の日付にする ```http://hogehoge...{ZoomLevel}/{TileRow}/{TileCol}.png```という形式になっている 
+    - ZoomLevelで6と指定すると2^6にx方向, y方向をそれぞれ分割する
     - row, columnは以下のページのようになっている
       - https://knowledge.safe.com/articles/180/which-web-map-tiling-scheme-should-i-use.html
     
