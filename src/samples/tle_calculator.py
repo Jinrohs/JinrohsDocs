@@ -152,6 +152,9 @@ class TLECalculator:
 
         r, theta, phi = self.cartesian_to_polar(X, Y, Z)
 
+        print "theta, phi [rad]", theta, phi
+        print "theta, phi [deg]", theta*180/pi, phi*180/pi
+
         lat = 90-theta*180/pi
         lng = phi*180/pi
 
